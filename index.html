@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gamified Quiz</title>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+.quiz-container {
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    text-align: center;
+    max-width: 600px;
+    width: 90%;
+}
+h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+}
+.option {
+    display: block;
+    margin: 10px 0;
+    padding: 15px;
+    background: #f0f0f0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    font-size: 18px;
+}
+.option:hover {
+    background: #e0e0e0;
+    transform: scale(1.03);
+}
+.option.correct {
+    background-color: #a8e6a3;
+    border-color: #3ca63c;
+    color: #155724;
+}
+.option.wrong {
+    background-color: #f7a8a8;
+    border-color: #d9534f;
+    color: #721c24;
+}
+#nextBtn {
+    margin-top: 20px;
+    padding: 12px 25px;
+    border: none;
+    background: #0077cc;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.2s;
+    display: none; /* hidden until answer selected */
+}
+#nextBtn:hover {
+    background: #005fa3;
+}
+p {
+    font-size: 20px;
+    margin-top: 20px;
+}
+</style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h2 id="question">Question will appear here</h2>
+    <div id="options"></div>
+    <button id="nextBtn">Next</button>
+</div>
+
+<script>
+const quiz = [
+    { question: "What does HTML stand for?", options: ["Hyper Text Markup Language","High Text Machine Language","Hyperlinks and Text Marking Language","Home Tool Markup Language"], answer: 0 },
+    { question: "Which language is used for styling web pages?", options: ["HTML","Python","CSS","Java"], answer: 2 },
+    { question: "Which one is a JavaScript framework?", options: ["Laravel","React","Django","Flask"], answer: 1 },
+    { question: "What does UX stand for?", options: ["User Experience","Universal Experience","User Extension","Unique Execution"], answer: 0 },
+    { question: "Which tool is commonly used for version control?", options: ["Figma","Git","Photoshop","Illustrator"], answer: 1 }
+];
+
+let currentQuestion = 0;
+let score = 0;
+
+let questionEl = document.getElementById("question");
+let optionsEl = document.getElementById("options");
+let nextBtn = document.getElementById("nextBtn");
+
+function loadQuestion() {
+    const q = quiz[currentQuestion];
+    questionEl.innerText = q.question;
+    optionsEl.innerHTML = "";
+    nextBtn.style.display = "none"; // hide Next until an answer is selected
+
+    q.options.forEach((option, index) => {
+        const div = document.createElement("div");
+        div.className = "option";
+        div.innerText = option;
+        div.dataset.index = index;
+        div.onclick = () => selectAnswer(div, index);
+        optionsEl.appendChild(div);
+    });
+}
+
+function selectAnswer(element, selectedIndex) {
+    const correctIndex = quiz[currentQuestion].answer;
+
+    // disable all options
+    Array.from(optionsEl.children).forEach(opt => opt.style.pointerEvents = "none");
+
+    if (selectedIndex === correctIndex) {
+        element.classList.add("correct");
+        score++;
+    } else {
+        element.classList.add("wrong");
+        optionsEl.children[correctIndex].classList.add("correct");
+    }
+
+    nextBtn.style.display = "inline-block"; // show Next button
+}
+
+nextBtn.addEventListener("click", () => {
+    currentQuestion++;
+    if (currentQuestion < quiz.length) loadQuestion();
+    else showResult();
+});
+
+function showResult() {
+    let message = "";
+    if (score <= 1) message = "0–1 points: Try harder next time.";
+    else if (score <= 3) message = "2–3 points: Average knowledge.";
+    else if (score === 4) message = "4 points: Decent performance.";
+    else message = "5 points: Outstanding!";
+
+    document.querySelector(".quiz-container").innerHTML = `
+        <h2>Your Score: ${score} / ${quiz.length}</h2>
+        <p>${message}</p>
+        <button onclick="restartQuiz()">Restart Quiz</button>
+    `;
+}
+
+function restartQuiz() {
+    currentQuestion = 0;
+    score = 0;
+
+    const container = document.querySelector(".quiz-container");
+    container.innerHTML = `
+        <h2 id="question"></h2>
+        <div id="options"></div>
+        <button id="nextBtn" style="display:none;">Next</button>
+    `;
+
+    // reassign variables
+    questionEl = document.getElementById("question");
+    optionsEl = document.getElementById("options");
+    nextBtn = document.getElementById("nextBtn");
+
+    nextBtn.addEventListener("click", () => {
+        currentQuestion++;
+        if (currentQuestion < quiz.length) loadQuestion();
+        else showResult();
+    });
+
+    loadQuestion();
+}
+
+// initial load
+loadQuestion();
+</script>
+
+</body>
+</html>
