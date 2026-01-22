@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>5-Level Quiz Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    #quiz-container {
+      max-width: 500px;
+      padding: 20px;
+      background: #1e293b;
+      border-radius: 14px;
+      text-align: center;
+    }
+
+    h2 { margin-bottom: 10px; }
+
+    #progress { margin-bottom: 15px; font-weight: bold; }
+
+    #answers button {
+      display: block;
+      width: 100%;
+      margin: 6px 0;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #334155;
+      color: #fff;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    #answers button.correct { background: #16a34a; }
+    #answers button.wrong { background: #dc2626; }
+
+    #next {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #020617;
+      cursor: pointer;
+      font-size: 16px;
+      display: none;
+    }
+
+    #final {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="quiz-container">
+    <h2>🎮 Quiz Challenge</h2>
+    <div id="progress">Question 1 of 5</div>
+    <p id="question"></p>
+    <div id="answers"></div>
+    <button id="next">Next</button>
+    <p id="final"></p>
+  </div>
+
+  <script>
+    const questions = [
+      { q: "What does HTML stand for?", a: ["Hyper Text Markup Language", "High Text Machine Language", "Hyper Tool Multi Language", "Home Tool Markup Language"], correct: 0 },
+      { q: "Which language styles web pages?", a: ["HTML", "Python", "CSS", "Java"], correct: 2 },
+      { q: "Which is a JavaScript framework?", a: ["Django", "React", "Laravel", "Flask"], correct: 1 },
+      { q: "What symbol starts an ID selector in CSS?", a: [".", "#", "*", "&"], correct: 1 },
+      { q: "Which keyword declares a variable in JS?", a: ["int", "define", "let", "var"], correct: 2 }
+    ];
+
+    let index = 0;
+    let score = 0;
+
+    const questionEl = document.getElementById("question");
+    const answersEl = document.getElementById("answers");
+    const progressEl = document.getElementById("progress");
+    const nextBtn = document.getElementById("next");
+    const finalEl = document.getElementById("final");
+
+    loadQuestion();
+
+    function loadQuestion() {
+      answersEl.innerHTML = "";
+      finalEl.textContent = "";
+      progressEl.textContent = `Question ${index + 1} of 5`;
+      questionEl.textContent = questions[index].q;
+      nextBtn.style.display = "none";
+
+      questions[index].a.forEach((text, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = text;
+        btn.onclick = () => selectAnswer(btn, i);
+        answersEl.appendChild(btn);
+      });
+    }
+
+    function selectAnswer(button, selected) {
+      const correct = questions[index].correct;
+      const buttons = answersEl.querySelectorAll("button");
+
+      buttons.forEach(btn => btn.disabled = true);
+
+      if (selected === correct) {
+        button.classList.add("correct");
+        score++;
+      } else {
+        button.classList.add("wrong");
+        buttons[correct].classList.add("correct");
+      }
+
+      nextBtn.style.display = "inline-block";
+    }
+
+    nextBtn.onclick = () => {
+      index++;
+      if (index < questions.length) {
+        loadQuestion();
+      } else {
+        endQuiz();
+      }
+    };
+
+    function endQuiz() {
+      questionEl.textContent = "🎉 Quiz Completed!";
+      answersEl.innerHTML = "";
+      progressEl.textContent = "";
+      nextBtn.style.display = "none";
+      finalEl.textContent = `Your score: ${score} / 5`;
+    }
+  </script>
+</body>
+</html>
